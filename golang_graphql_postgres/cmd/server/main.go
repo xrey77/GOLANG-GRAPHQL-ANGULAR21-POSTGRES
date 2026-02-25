@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/graphql-go/graphql"
 )
@@ -42,6 +43,11 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
+	router.Use(static.Serve("/", static.LocalFile(",/templates", true)))
+
+	router.LoadHTMLGlob("../templates/*.*")
+	router.Static("/assets", "../templates/assets")
+
 	schemaConfig := graphql.SchemaConfig{Query: gql.RootQuery, Mutation: mutate.RootMutation}
 	schema, err := graphql.NewSchema(schemaConfig)
 	if err != nil {
@@ -70,6 +76,14 @@ func main() {
 
 		c.JSON(http.StatusOK, result)
 	})
+
+	router.GET("/", func(c *gin.Context) {
+		c.File("../templates/index.html")
+	})
+
+	// router.NoRoute(func(c *gin.Context) {
+	// 	c.File("/templates/index.html")
+	// })
 
 	host := "localhost"
 	port := "5000"

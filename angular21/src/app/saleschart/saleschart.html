@@ -1,0 +1,28 @@
+<h5 class="w-100 bg-black text-center text-white">Annual Sales Chart</h5>
+<div class="container-fluid text-center bg-dark m-top">
+  @if (message) {
+    <p style="color: lightcyan">{{ message }}</p>
+  }
+
+  <div class="print-header">
+    <h1>Sale Report</h1>
+    <p>Generated on: {{ today | date }}</p>
+  </div>
+
+  <div style="display: block; height: 400px; padding: 20px;">
+    @if (barChartData.datasets.length > 0) {
+      <canvas
+        baseChart
+        [data]="barChartData"
+        [options]="barChartOptions"
+        [type]="barChartType">
+      </canvas>
+    } @else {
+      <p class="text-center">Loading chart data...</p>
+    }
+  </div>
+
+  <button class="btn btn-success btn-sm b-print" (click)="handlePrint()">
+    Print Chart
+  </button>
+</div>

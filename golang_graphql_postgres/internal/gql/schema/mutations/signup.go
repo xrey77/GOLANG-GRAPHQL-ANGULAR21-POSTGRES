@@ -1,6 +1,7 @@
 package mutations
 
 import (
+	"fmt"
 	"golang_graphql_postgres/configs"
 	"golang_graphql_postgres/internal/gql/schema/types"
 	utils "golang_graphql_postgres/internal/middlware"
@@ -43,19 +44,23 @@ var SignUpField = &graphql.Field{
 		userEmail, _ := utils.SearchByEmail(email)
 		if userEmail {
 			userEmail = false
-			return map[string]interface{}{
-				"message": "Email Address is already taken.",
-				"user":    nil,
-			}, nil
+			return nil, fmt.Errorf("%s", "Email Address is already taken.")
+
+			// return map[string]interface{}{
+			// 	"message": "Email Address is already taken.",
+			// 	"user":    nil,
+			// }, nil
 		}
 
 		userName, _ := utils.SearchByUsername(username)
 		if userName {
 			userName = false
-			return map[string]interface{}{
-				"message": "Username is already taken.",
-				"user":    nil,
-			}, nil
+			// return map[string]interface{}{
+			// 	"message": "Username is already taken.",
+			// 	"user":    nil,
+			// }, nil
+			return nil, fmt.Errorf("%s", "Username is already taken.")
+
 		}
 
 		newUser := models.User{
@@ -69,10 +74,12 @@ var SignUpField = &graphql.Field{
 		}
 
 		if err := configs.DB.Create(&newUser).Error; err != nil {
-			return map[string]interface{}{
-				"message": "Registration failed: " + err.Error(),
-				"user":    nil,
-			}, nil
+			// return map[string]interface{}{
+			// 	"message": "Registration failed: " + err.Error(),
+			// 	"user":    nil,
+			// }, nil
+			return nil, fmt.Errorf("%s", "Registration failed, "+err.Error())
+
 		}
 
 		return map[string]interface{}{

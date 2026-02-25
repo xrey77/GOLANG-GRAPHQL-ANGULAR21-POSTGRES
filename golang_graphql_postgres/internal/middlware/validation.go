@@ -65,19 +65,6 @@ func GetRolName(id int) (*models.Role, error) {
 	return &role, nil
 }
 
-// func GetUserInfo(userName string) (*models.User, error) {
-// 	var user models.User
-
-// 	result := configs.DB.Where("username = ?", userName).First(&user)
-
-//		if result.Error != nil {
-//			if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-//				return nil, nil
-//			}
-//			return nil, result.Error
-//		}
-//		return &user, nil
-//	}
 func GetUserInfo(userName string) (*models.User, error) {
 	var user models.User
 	result := configs.DB.Where("username = ?", userName).First(&user)
@@ -85,6 +72,19 @@ func GetUserInfo(userName string) (*models.User, error) {
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, errors.New("username does not exist")
+		}
+		return nil, result.Error
+	}
+	return &user, nil
+}
+
+func GetUserID(id int) (*models.User, error) {
+	var user models.User
+	result := configs.DB.Where("id = ?", id).First(&user)
+
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, errors.New("User ID does not exist")
 		}
 		return nil, result.Error
 	}
