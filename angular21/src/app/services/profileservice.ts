@@ -1,173 +1,140 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import {  Observable } from 'rxjs';
+import { Apollo, gql } from 'apollo-angular';
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class Profileservice {
-  private apiUrl = "http://127.0.0.1:8000/graphql";
-  private http = inject(HttpClient)
+  private readonly apollo = inject(Apollo);
     
-
   public getUserbyId(idno: number, token: any): Observable<any> {
-
-    const GETUSERID_QUERY = `
-      query getUserById($id: Int!) {
-          getUserById(id: $id) {
-              id
-              firstname
-              lastname
-              email
-              mobile
-              username
-              profilepic
-              qrcodeurl
+    const GETUSER_ID = gql`
+        query GetUserID($id: Int!) {        
+          getUserID(id: $id) {
+              user {
+                  id
+                  firstname
+                  lastname
+                  email
+                  mobile
+                  username
+                  qrcodeurl
+                  userpicture
+              }
           }
-      }
-    `
-      const headers = new HttpHeaders({
-          'Authorization': `Bearer ${token}`
-        });
-
-      return this.http.post(
-        this.apiUrl, 
-        {
-          query: GETUSERID_QUERY,
-          variables: { id: idno }
+        }
+      `
+      return this.apollo.query({
+        query: GETUSER_ID,
+        variables: { 
+          id: idno,
         },
-        { headers }
-      );        
+        context: {
+          headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+        }        
+    });
   }
 
   public ActivateMFA(idno: number, isenabled: boolean, token: string) {
-    const MFAACTIVATIOIN_QUERY = `
-        mutation MfaActivation($input: MfaInput!) {
-            mfaActivation(input: $input) {
-                message
-                user {
-                    id
-                    qrcodeurl
-                }
-            }
+    const ACTIVATE_MFA = gql`
+        mutation MfaActivation($id: Int!, $twofactorenabled: Boolean!) {        
+          mfaActivation(id: $id, twofactorenabled: $twofactorenabled) {
+              message
+              user {
+                  qrcodeurl
+              }
+          }
         }
       `
-      const headers = new HttpHeaders({
-          'Authorization': `Bearer ${token}`
-        });
-
-      return this.http.post(
-        this.apiUrl, 
-        {
-          query: MFAACTIVATIOIN_QUERY,
-          variables: { 
-            input: {
-              "id": idno,
-              "twofactorenabled": isenabled,
-            }
-          }
+      return this.apollo.mutate({
+        mutation: ACTIVATE_MFA,
+        variables: { 
+          id: idno,
+          twofactorenabled: isenabled
         },
-        { headers }
-      );        
+        context: {
+          headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+        }        
+    });
+
   }
 
-  public UploadPicture(idno: number, file: File, token: any): Observable<any> {
-      const operations = {
-          query: `
-            mutation UploadPicture($id: Int!, $file: Upload!) {
-              uploadPicture(id: $id, profilepic: $file) {
-                message
-                user {
+  public async UploadPicture(idno: number, file: File, token: any): Promise<Observable<any>> {
+    const UPLOAD_PICTURE = gql`
+        mutation UploadPicture($id : Int!, $file: Upload!) {        
+          uploadPicture(id: $id, file: $file) {
+              message
+              user {
                   id
-                  profilepic
-                }
               }
-            }
-          `,
-          variables: {
-              id: idno,
-              file: null
           }
-        };
-
-        const map = {
-          '0': ['variables.file']
-        };
-
-        const formData = new FormData();
-        formData.append('operations', JSON.stringify(operations));
-        formData.append('map', JSON.stringify(map));
-        formData.append('0', file);
-
-        const headers = new HttpHeaders({
-          'Authorization': `Bearer ${token}`
-        });
-
-        return this.http.post(this.apiUrl, formData, { headers });        
+        }
+      `
+      console.log(file);
+      return this.apollo.mutate({
+        mutation: UPLOAD_PICTURE,
+        variables: { 
+          id: idno,
+          userpicture: file
+        },
+        context: {
+          useMultipart: true,          
+          headers: new HttpHeaders().set(
+            'Authorization', `Bearer ${token},
+            'Apollo-Require-Preflight': 'true`)
+        }        
+    });
   }
 
   public sendProfileRequest(idno: number, userdtls: any, token: any): Observable<any> {
-    const PROFILEUPDATE_QUERY = `
-        mutation UpdateProfile($input: ProfileInput!) {
-            updateProfile(input: $input) {
-                message
-                user {
-                    id
-                }
-            }
+    const PROFILE_UPDATE = gql`
+        mutation UpdateProfile($id: Int!,$firstname: String!, $lastname: String!, $mobile: String!) {        
+          updateProfile(id: $id, firstname: $firstname, lastname: $lastname, mobile: $mobile) {
+              message
+              user {
+                  id
+              }
+          }
         }
       `
-      
-      const headers = new HttpHeaders({
-          'Authorization': `Bearer ${token}`
-        });      
-      
-      return this.http.post(
-        this.apiUrl, 
-        {
-          query: PROFILEUPDATE_QUERY,
-          variables: { 
-            input: {
-              "id": idno,
-              "firstname": userdtls.firstname,
-              "lastname": userdtls.lastname,
-              "mobile": userdtls.mobile
-            }
-          }
+      return this.apollo.mutate({
+        mutation: PROFILE_UPDATE,
+        variables: { 
+          id: idno,
+          firstname: userdtls.firstname,
+          lastname: userdtls.lastname,
+          mobile: userdtls.mobile
         },
-        { headers }
-      );        
+        context: {
+          headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+        }        
+    });
+     
   }  
 
   public sendNewpasswordRequest(idno: number, userdtls: any, token: any): Observable<any> {
-    const CHANGEPASSWORD_QUERY = `
-        mutation ChangePassword($input: PasswordInput!) {
-            changePassword(input: $input) {
-                message
-                user {
-                    id
-                }
-            }
+    const UPDATE_PASSWORD = gql`
+        mutation UpdatePassword($id: Int!, $password: String!) {        
+          updatePassword(id: $id, password: $password) {
+              message
+              user {
+                  id
+              }
+          }
         }
       `
-      const headers = new HttpHeaders({
-          'Authorization': `Bearer ${token}`
-        });
-
-      return this.http.post(
-        this.apiUrl, 
-        {
-          query: CHANGEPASSWORD_QUERY,
-          variables: { 
-            input: {
-              "id": idno,
-              "password": userdtls.password,
-            }
-          }
+      return this.apollo.mutate({
+        mutation: UPDATE_PASSWORD,
+        variables: { 
+          id: idno,
+          password: userdtls.password
         },
-        { headers }
-      );        
-  }  
-  
+        context: {
+          headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+        }        
+    });
+  }
 }

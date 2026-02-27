@@ -70,8 +70,8 @@ export class Mfa {
                   return true;
                 }, 3000);
               } else {
-                this.message.set(res.data.mfaVerification.message);
-                this.sessionStorageService.setItem("USERNAME", res.data.mfaVerification.user.username);  
+                this.message.set(res.data.otpVerification.message);
+                this.sessionStorageService.setItem("USERNAME", res.data.otpVerification.user.username);  
                 setTimeout(() => {
                   this.message.set('');
                   $("#reset").trigger('click')

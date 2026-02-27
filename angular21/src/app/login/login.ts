@@ -40,7 +40,6 @@ export class Login implements AfterViewInit{
     config.backdrop = 'static';
 		config.keyboard = false;    
       afterNextRender(() => {
-        // This code runs only in the browser, after the next render cycle
         console.log('Window object is safe to use here:', window.location.href);
       });  
   }
@@ -54,7 +53,6 @@ export class Login implements AfterViewInit{
        this.isDisabled = true;
        this.loginService.sendLoginRequest(this.loginForm.value).subscribe({
          next: (res: any) => {
-
             if (res.errors) {
                   this.loginMessage.set(res.errors[0].message);
                   setTimeout(() => {
@@ -63,33 +61,35 @@ export class Login implements AfterViewInit{
                   }, 3000);
                   return;
             } 
-
-            this.loginMessage.set(res.data.signIn.message);
-            this.sessionStorageService.setItem("USERID", res.data.signIn.user.id);
-            this.sessionStorageService.setItem("TOKEN", res.data.signIn.token);
-            let userpicture = `http://127.0.0.1:8000/users/${res.data.signIn.user.profilepic}`
+            this.loginMessage.set(res.data.signinUser.message);
+            this.sessionStorageService.setItem("USERID", res.data.signinUser.user.id);
+            this.sessionStorageService.setItem("TOKEN", res.data.signinUser.token);
+            this.sessionStorageService.setItem("ROLES", res.data.signinUser.roles);
+            let userpicture = `http://localhost:5000/assets/users/${res.data.signinUser.user.userpicture}`
             this.sessionStorageService.setItem("USERPIC", userpicture);
 
-            if (res.data.signIn.user.qrcodeurl !== null) {
+            if (res.data.signinUser.user.qrcodeurl !== null) {
               this.isDisabled = false;
               $("#reset").trigger('click'); 
               $("#hideLogin").trigger('click');
               $("#showMfa").trigger('click');
               this.loginMessage.set('');                          
             } else {
-              this.sessionStorageService.setItem("USERNAME", res.data.signIn.user.username);  
-              this.loginMessage.set('');
-              this.isDisabled = false;
+              this.sessionStorageService.setItem("USERNAME", res.data.signinUser.user.username);  
               $("#reset").trigger('click');
               $("#hideLogin").trigger('click');
               this.router.navigate(['/']); 
               setTimeout(() => {
+              this.loginMessage.set('');
+              this.isDisabled = false;
                 location.reload();
               }, 1000);
             }
           
           },
           error: (err: any) => {
+            alert("error 2");
+            console.log(err.errors);
             this.loginMessage.set(err.errors.message);
             setTimeout(() => {
               this.loginMessage.set('');

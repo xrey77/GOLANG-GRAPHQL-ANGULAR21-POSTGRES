@@ -1,45 +1,35 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpHeaders } from '@angular/common/http';
 import {  Observable } from 'rxjs';
+import { Apollo, gql } from 'apollo-angular';
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class Mfaservice {
-  private apiUrl = "http://127.0.0.1:8000/graphql";  
-  private http = inject(HttpClient);
+  private readonly apollo = inject(Apollo);
 
-public sendMfaValidation(idno: number, userdtls: any, token: any): Observable<any> {
-
-      const TOTP_QUERY = `
-        mutation MfaVerification($input: VerificationInput!) {
-            mfaVerification(input: $input) {
-                message
-                user {
-                    id
-                    username
-                }
-            }
+  public sendMfaValidation(idno: number, userdtls: any, token: any): Observable<any> {
+    const VERIFY_OTP = gql`
+        mutation OtpVerification($id: Int!, $otp: String!) { 
+          otpVerification(id: $id, otp: $otp) {
+              message
+              user {
+                  username
+              }
+          }
         }
       `
-
-      const headers = new HttpHeaders({
-          'Authorization': `Bearer ${token}`
-        });
-
-      return this.http.post(
-        this.apiUrl, 
-        {
-          query: TOTP_QUERY,
-          variables: { 
-            input: {
-              "id": idno,
-              "otp": userdtls.otp,
-            }
-          }
+      return this.apollo.mutate({
+        mutation: VERIFY_OTP,
+        variables: { 
+          id: idno,
+          otp: userdtls.otp
         },
-        { headers }
-      );        
-  };  
+        context: {
+          headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
+        }        
+    });
+  }
 }

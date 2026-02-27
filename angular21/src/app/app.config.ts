@@ -7,7 +7,13 @@ import { provideClientHydration, withEventReplay } from '@angular/platform-brows
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { provideApollo } from 'apollo-angular';
 import { HttpLink } from 'apollo-angular/http';
+import UploadHttpLink from 'apollo-upload-client/UploadHttpLink.mjs';
+
+// import { createUploadLink } from 'apollo-upload-client';
+
 import { InMemoryCache } from '@apollo/client';
+import extractFiles from 'extract-files/extractFiles.mjs';
+import isExtractableFile from 'extract-files/isExtractableFile.mjs';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,7 +27,9 @@ export const appConfig: ApplicationConfig = {
 
       return {
         link: httpLink.create({
-          uri: 'http://127.0.0.1:8000/graphql',
+          uri: 'http://localhost:5000/graphql',
+          // headers: { 'Apollo-Require-Preflight': 'true' }
+          extractFiles: (body) => extractFiles(body, isExtractableFile),          
         }),
         cache: new InMemoryCache(),
       };

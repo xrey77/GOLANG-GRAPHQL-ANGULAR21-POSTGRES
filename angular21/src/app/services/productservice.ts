@@ -8,15 +8,14 @@ import { Apollo, gql } from 'apollo-angular';
 })
 
 export class Productservice {
-  private apiUrl = "http://127.0.0.1:8000/graphql";
-  private http = inject(HttpClient);
   private readonly apollo = inject(Apollo);
-  
+  private http = inject(HttpClient);
+  private apiUrl = "";
 
   public sendSearchRequest(page: number, keyword: any): Observable<any>
   {
-    const SEARCH_QUERY = `
-      query ProductsSearch($keyword: String, $first: Int, $page: Int) {
+    const SEARCH_QUERY = gql`
+      mutation ProductsSearch($keyword: String, $first: Int, $page: Int) {
           productsSearch(keyword: $keyword, first: $first, page: $page) {
             data {
                 id

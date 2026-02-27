@@ -54,7 +54,7 @@ export class Register {
                 }, 3000);
                 return;
           } else {
-            this.registrationMessage.set(res.data.registerUser.message);
+            this.registrationMessage.set(res.data.signupUser.message);
           }
 
           setTimeout(() => {
@@ -63,7 +63,7 @@ export class Register {
 
         },
         error: (err: any) => {
-          this.registrationMessage.set(err.errors.message);
+          this.registrationMessage.set(err.errors[0].message);
           setTimeout(() => {
             this.registrationMessage.set('');
           }, 3000);

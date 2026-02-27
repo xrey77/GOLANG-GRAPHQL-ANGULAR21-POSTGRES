@@ -1,8 +1,6 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-// import { User } from '../interface/user';
 import {  map, Observable } from 'rxjs';
-// import { LoginResponse } from '../models/auth.types';
+import { Apollo, gql } from 'apollo-angular';
 
 
 @Injectable({
@@ -10,40 +8,35 @@ import {  map, Observable } from 'rxjs';
 })
 
 export class Loginservice {
-    private http = inject(HttpClient);
-    private apiUrl = "http://127.0.0.1:8000/graphql";
+    private readonly apollo = inject(Apollo);
 
   public sendLoginRequest(userdtls: any): Observable<any> {
 
-    const LOGIN_MUTATION = `
-      mutation LoginUser($input: LoginInput!) {
-        signIn(input: $input) {
-          token
-          message
-          user {
-            id
-            firstname
-            lastname
-            email
-            mobile
-            username
-            isactivated
-            isblocked
-            mailtoken
-            profilepic
-            qrcodeurl
+    const SIGNIN_USER = gql`
+        mutation SigninUser($username: String!, $password: String!) {
+          signinUser(username: $username, password: $password) {
+              token
+              rolename
+              message
+              user {
+                  id
+                  firstname
+                  lastname
+                  email
+                  mobile
+                  username
+                  roles
+                  userpicture
+                  qrcodeurl
+              }
           }
         }
-      }
-    `
-
-     return this.http.post(this.apiUrl, {
-      query: LOGIN_MUTATION,
-      variables: { 
-        input: {
-          username: userdtls.username, password: userdtls.password
-        }
-       }
-    });
-  };
+      `
+      return this.apollo.mutate({
+        mutation: SIGNIN_USER,
+        variables: { 
+          username: userdtls.username,
+          password: userdtls.password },
+      })
+  }
 }
