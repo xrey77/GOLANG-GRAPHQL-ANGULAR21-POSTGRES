@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"golang_graphql_postgres/configs"
 	"golang_graphql_postgres/internal/gql/schema/types"
-	utils "golang_graphql_postgres/internal/middlware"
+	middleware "golang_graphql_postgres/internal/middleware"
 	"golang_graphql_postgres/internal/models"
 
 	"github.com/graphql-go/graphql"
@@ -41,7 +41,7 @@ var SignUpField = &graphql.Field{
 			return nil, err
 		}
 
-		userEmail, _ := utils.SearchByEmail(email)
+		userEmail, _ := middleware.SearchByEmail(email)
 		if userEmail {
 			userEmail = false
 			return nil, fmt.Errorf("%s", "Email Address is already taken.")
@@ -52,7 +52,7 @@ var SignUpField = &graphql.Field{
 			// }, nil
 		}
 
-		userName, _ := utils.SearchByUsername(username)
+		userName, _ := middleware.SearchByUsername(username)
 		if userName {
 			userName = false
 			// return map[string]interface{}{

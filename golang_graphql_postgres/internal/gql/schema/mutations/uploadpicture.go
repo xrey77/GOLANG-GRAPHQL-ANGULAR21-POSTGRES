@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"golang_graphql_postgres/configs"
 	"golang_graphql_postgres/internal/gql/schema/types"
-	utils "golang_graphql_postgres/internal/middlware"
+	middlware "golang_graphql_postgres/internal/middleware"
 	"golang_graphql_postgres/internal/models"
 	"mime/multipart"
 	"path/filepath"
@@ -29,6 +29,13 @@ var UploadPictureField = &graphql.Field{
 		"file": &graphql.ArgumentConfig{Type: types.UploadScalar},
 	},
 	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+
+		// user, ok := params.Context.Value("user").(*types.UserClaims)
+
+		// if !ok || user == nil {
+		// 	return nil, errors.New("Unauthorized Access, valid bearer token required.")
+		// }
+
 		userid := params.Args["id"].(int)
 		file, ok := params.Args["file"].(*multipart.FileHeader)
 		if !ok {
@@ -39,7 +46,7 @@ var UploadPictureField = &graphql.Field{
 			return nil, fmt.Errorf("could not find gin context")
 		}
 
-		user, err := utils.GetUserID(userid)
+		user, err := middlware.GetUserID(userid)
 		if err != nil {
 			return nil, fmt.Errorf("User ID not found.")
 		}

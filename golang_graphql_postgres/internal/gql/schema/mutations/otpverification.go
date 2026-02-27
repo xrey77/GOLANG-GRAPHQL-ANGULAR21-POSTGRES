@@ -1,10 +1,10 @@
 package mutations
 
 import (
+	"errors"
 	"fmt"
 	"golang_graphql_postgres/internal/gql/schema/types"
-	utils "golang_graphql_postgres/internal/middlware"
-	"log"
+	middleware "golang_graphql_postgres/internal/middleware"
 
 	"github.com/graphql-go/graphql"
 	"github.com/pquerna/otp/totp"
@@ -27,23 +27,27 @@ var OtpVerificationField = &graphql.Field{
 	},
 	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 
+		user, ok := params.Context.Value("user").(*types.UserClaims)
+
+		if !ok || user == nil {
+			return nil, errors.New("Unauthorized Access, valid bearer token required.")
+		}
+
 		userid := params.Args["id"].(int)
 		otp := params.Args["otp"].(string)
 
-		user, err := utils.GetUserID(userid)
+		userData, err := middleware.GetUserID(userid)
 		if err != nil {
 			return nil, fmt.Errorf("User ID not found: %w", err)
 		}
 
-		log.Println("SECRET......." + *user.Secret)
-		log.Println("OTP..........." + otp)
-		if user.Secret != nil {
+		if userData.Secret != nil {
 
-			valid := totp.Validate(otp, *user.Secret)
+			valid := totp.Validate(otp, *userData.Secret)
 			if valid {
 				return map[string]interface{}{
 					"message": "OTP code was verified successfully.",
-					"user":    user,
+					"user":    userData,
 				}, nil
 
 			}

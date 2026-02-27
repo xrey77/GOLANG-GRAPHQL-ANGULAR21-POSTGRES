@@ -2,11 +2,12 @@ package mutations
 
 import (
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"golang_graphql_postgres/configs"
 	"golang_graphql_postgres/internal/dto"
 	"golang_graphql_postgres/internal/gql/schema/types"
-	utils "golang_graphql_postgres/internal/middlware"
+	middleware "golang_graphql_postgres/internal/middleware"
 	"golang_graphql_postgres/internal/models"
 
 	"github.com/graphql-go/graphql"
@@ -31,22 +32,25 @@ var MfaActivationField = &graphql.Field{
 	},
 	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 
+		user, ok := params.Context.Value("user").(*types.UserClaims)
+
+		if !ok || user == nil {
+			return nil, errors.New("Unauthorized Access, valid bearer token required.")
+		}
+
 		userid := params.Args["id"].(int)
 		twofactorenabled, _ := params.Args["twofactorenabled"].(bool)
 
 		if twofactorenabled {
 
-			user, err := utils.GetUserID(userid)
+			userData, err := middleware.GetUserID(userid)
 			if err != nil {
-				return map[string]interface{}{
-					"message": err.Error(),
-					"user":    nil,
-				}, nil
+				return nil, fmt.Errorf("%s", "User ID not found."+err.Error())
 			}
 
 			key, err := totp.Generate(totp.GenerateOpts{
 				Issuer:      "SUPERCAR INC.",
-				AccountName: user.Email,
+				AccountName: userData.Email,
 			})
 
 			if err != nil {
@@ -78,7 +82,7 @@ var MfaActivationField = &graphql.Field{
 			if count == 0 {
 				return nil, fmt.Errorf("User ID not found")
 			}
-			user.Qrcodeurl = &base64Encoded
+			userData.Qrcodeurl = &base64Encoded
 
 			return map[string]interface{}{
 				"message": "Multi-Factor Authenticator has been enabled successfully.",

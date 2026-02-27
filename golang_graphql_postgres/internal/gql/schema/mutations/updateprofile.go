@@ -1,6 +1,7 @@
 package mutations
 
 import (
+	"errors"
 	"fmt"
 	"golang_graphql_postgres/configs"
 	"golang_graphql_postgres/internal/dto"
@@ -28,6 +29,12 @@ var UpdateProfileField = &graphql.Field{
 		"mobile":    &graphql.ArgumentConfig{Type: graphql.String},
 	},
 	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+
+		user, ok := params.Context.Value("user").(*types.UserClaims)
+
+		if !ok || user == nil {
+			return nil, errors.New("Unauthorized Access, valid bearer token required.")
+		}
 
 		userid := params.Args["id"].(int)
 		firstname := params.Args["firstname"].(string)

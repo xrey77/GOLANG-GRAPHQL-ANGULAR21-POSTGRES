@@ -2,7 +2,7 @@ package mutations
 
 import (
 	"golang_graphql_postgres/internal/gql/schema/types"
-	utils "golang_graphql_postgres/internal/middlware"
+	middleware "golang_graphql_postgres/internal/middleware"
 	"golang_graphql_postgres/internal/models"
 
 	"github.com/graphql-go/graphql"
@@ -30,7 +30,7 @@ var SignInField = &graphql.Field{
 		username := params.Args["username"].(string)
 		plainPwd := params.Args["password"].(string)
 
-		user, err := utils.GetUserInfo(username)
+		user, err := middleware.GetUserInfo(username)
 		if err != nil {
 			return map[string]interface{}{
 				"token":    nil,
@@ -52,13 +52,13 @@ var SignInField = &graphql.Field{
 			}, nil
 		}
 
-		xtoken, err := utils.GenerateJWT(user.Email)
+		xtoken, err := middleware.GenerateToken(user.Email)
 		token := ""
 		if err == nil {
 			token = xtoken
 		}
 
-		role, err := utils.GetRolName(user.Role_id)
+		role, err := middleware.GetRolName(user.Role_id)
 		roleName := ""
 		if err == nil && role != nil {
 			roleName = role.Name

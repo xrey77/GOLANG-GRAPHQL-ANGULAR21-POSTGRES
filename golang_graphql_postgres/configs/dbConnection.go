@@ -24,7 +24,7 @@ func Connection() *gorm.DB {
 
 	log.Print("connected to postgres database.")
 
-	err = DB.AutoMigrate(&models.User{}, &models.Role{}, &models.Product{})
+	err = DB.AutoMigrate(&models.User{}, &models.Role{}, &models.Product{}, &models.Sale{})
 	if err != nil {
 		log.Fatalf("Migration failed: %v", err)
 	}

@@ -1,6 +1,7 @@
 package mutations
 
 import (
+	"errors"
 	"fmt"
 	"golang_graphql_postgres/configs"
 	"golang_graphql_postgres/internal/dto"
@@ -27,6 +28,12 @@ var UpdatePasswordField = &graphql.Field{
 		"password": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.String)},
 	},
 	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+
+		user, ok := params.Context.Value("user").(*types.UserClaims)
+
+		if !ok || user == nil {
+			return nil, errors.New("Unauthorized Access, valid bearer token required.")
+		}
 
 		userid := params.Args["id"].(int)
 		password, _ := params.Args["password"].(string)

@@ -7,7 +7,10 @@ import (
 var RootQuery = graphql.NewObject(graphql.ObjectConfig{
 	Name: "RootQuery",
 	Fields: graphql.Fields{
-		"getUsers":    GetUsersQuery(),
-		"getUserByID": GetUserByIDQuery(),
+		"getUsers":      GetUsersQuery(),
+		"getUserID":     GetUserIDQuery(),
+		"productList":   ProductListQuery(),
+		"productSearch": ProductSearchQuery(),
+		"getSales":      GetSalesQuery(),
 	},
 })

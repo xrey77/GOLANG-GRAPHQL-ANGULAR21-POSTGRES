@@ -5,32 +5,43 @@ import (
 	"golang_graphql_postgres/configs"
 	mutate "golang_graphql_postgres/internal/gql/schema/mutations"
 	gql "golang_graphql_postgres/internal/gql/schema/queries"
+	middleware "golang_graphql_postgres/internal/middleware"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/graphql-go/graphql"
+	"github.com/joho/godotenv"
 )
+
+func init() {
+	configs.Connection()
+	err1 := godotenv.Load(".env")
+	if err1 != nil {
+		log.Fatalf("Error loading .env file")
+	}
+
+}
 
 func GraphQLHandler(schema graphql.Schema) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var params struct {
+		var requestBody struct {
 			Query         string                 `json:"query"`
 			Variables     map[string]interface{} `json:"variables"`
 			OperationName string                 `json:"operationName"`
 		}
 
-		if err := c.ShouldBindJSON(&params); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		if err := c.BindJSON(&requestBody); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
 			return
 		}
 
 		result := graphql.Do(graphql.Params{
 			Schema:         schema,
-			RequestString:  params.Query,
-			VariableValues: params.Variables,
-			OperationName:  params.OperationName,
+			RequestString:  requestBody.Query,
+			VariableValues: requestBody.Variables,
+			OperationName:  requestBody.OperationName,
 			Context:        c.Request.Context(),
 		})
 
@@ -39,14 +50,12 @@ func GraphQLHandler(schema graphql.Schema) gin.HandlerFunc {
 }
 
 func main() {
-	configs.Connection()
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
 
 	router.Use(static.Serve("/", static.LocalFile(",/templates", true)))
-
-	router.LoadHTMLGlob("../templates/*.*")
-	router.Static("/assets", "../templates/assets")
+	router.LoadHTMLGlob("./templates/*.*")
+	router.Static("/assets", "./templates/assets")
 
 	schemaConfig := graphql.SchemaConfig{Query: gql.RootQuery, Mutation: mutate.RootMutation}
 	schema, err := graphql.NewSchema(schemaConfig)
@@ -54,6 +63,7 @@ func main() {
 		log.Fatalf("failed to create new schema, error: %v", err)
 	}
 
+	router.Use(middleware.AuthMiddleware())
 	router.POST("/graphql", func(c *gin.Context) {
 		var requestBody struct {
 			Query         string                 `json:"query"`
@@ -78,12 +88,8 @@ func main() {
 	})
 
 	router.GET("/", func(c *gin.Context) {
-		c.File("../templates/index.html")
+		c.File("./templates/index.html")
 	})
-
-	// router.NoRoute(func(c *gin.Context) {
-	// 	c.File("/templates/index.html")
-	// })
 
 	host := "localhost"
 	port := "5000"

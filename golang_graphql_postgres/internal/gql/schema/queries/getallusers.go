@@ -19,17 +19,16 @@ func GetUsersQuery() *graphql.Field {
 }
 
 // ============REQUEST=============
-// query Users {
-//     users {
-//         id,
+// query GetUsers {
+//     getUsers {
+//         id
 //         firstname
 //         lastname
 //         email
 //         mobile
+//         username
 //         isactivated
 //         isblocked
 //         userpicture
-//         secret
-//         qrcodeurl
 //     }
 // }

@@ -8,8 +8,8 @@ import (
 )
 
 // GET USER BY ID
-var userWrapperType = graphql.NewObject(graphql.ObjectConfig{
-	Name: "UserWrapper",
+var userIdWrapperType = graphql.NewObject(graphql.ObjectConfig{
+	Name: "UserIdWrapper",
 	Fields: graphql.Fields{
 		"user": &graphql.Field{
 			Type: types.UserType,
@@ -20,33 +20,29 @@ var userWrapperType = graphql.NewObject(graphql.ObjectConfig{
 	},
 })
 
-func GetUserByIDQuery() *graphql.Field {
+func GetUserIDQuery() *graphql.Field {
 	return &graphql.Field{
-		Type:        userWrapperType,
+		Type:        userIdWrapperType,
 		Description: "Get user by ID",
 		Args: graphql.FieldConfigArgument{
-			"id": &graphql.ArgumentConfig{
-				Type: graphql.NewNonNull(graphql.Int),
-			},
+			"id": &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
 		},
-		Resolve: resolvers.UserByIDResolver,
+		Resolve: resolvers.UserIDResolver,
 	}
 }
 
 // ===============REQUEST================
-// query GetUsers {
-//       getUsers {
-//         id
-//         firstname
-//         lastname
-//         email
-//         mobile
-//         userpicture
-//         isactivated
-//         isblocked
-//         userpicture
-//         qrcodeurl
-//       }
+// query GetUserID($id: Int!) {
+//     getUserID(id: $id) {
+//         user {
+//             id
+//             firstname
+//             lastname
+//             email
+//             mobile
+//             username
+//         }
+//     }
 // }
 
 // ============VARIABLES================
