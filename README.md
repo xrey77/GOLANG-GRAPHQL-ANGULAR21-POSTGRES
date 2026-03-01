@@ -3,12 +3,12 @@
 <p>Dependencies</p>
 <p>1. Node 23.5.0</p>
 <p>2. Npm 11.1.</p>
-
+<br/>
 <p>Requirements: </p>
 <p>1. PostgeSql Management</p>
 <p>2. Golang + Gin Gonic, Vite + Vue - Typescript</p>
 <p>3. Install Google or Microsoft Authenticator in your Mobile Phone</p>
-
+<br/>
 <p>FEATURES:</p>
 <p>1. User Login, Logout and Account Registration</p>
 <p>2. Multi-Factor Authenticator (MFA)</p>
