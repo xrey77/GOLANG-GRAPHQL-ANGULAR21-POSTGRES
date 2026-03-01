@@ -1,6 +1,6 @@
 <h3>Go 1.24 + Gin Gonic GraphqL, Angular CLI 21 and PostgreSQL Start-up Project</h3>
 
-<p>Dependencies</p>
+<p>Angular CLI 21 Dependencies</p>
 <p>1. Node 23.5.0</p>
 <p>2. Npm 11.1.</p>
 <br/>
