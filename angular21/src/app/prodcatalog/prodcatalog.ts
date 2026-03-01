@@ -35,10 +35,10 @@ export class Prodcatalog {
           } 
 
 
-          this.page = res.data.productsList.paginatorInfo.currentPage;
-          this.totpage = res.data.productsList.paginatorInfo.lastPage
-          this.products = res.data.productsList.data;
-          this.totalrecs = res.data.productsList.paginatorInfo.total
+          this.page = res.data.productList.page;
+          this.totpage = res.data.productList.totalpage;
+          this.products = res.data.productList.products;
+          this.totalrecs = res.data.productList.totalrecords;
 
           window.setTimeout(() => {
             this.message = '';

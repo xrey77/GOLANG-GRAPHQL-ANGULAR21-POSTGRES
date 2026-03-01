@@ -29,3 +29,28 @@ func ProductSearchQuery() *graphql.Field {
 		Resolve: resolvers.GetSearchResolver,
 	}
 }
+
+// ========REQUEST=======
+// query ProductSearch($key: String!, $page: Int!) {
+//     productSearch(key: $key, page: $page) {
+//         products {
+//             id
+//             category
+//             descriptions
+//             qty
+//             unit
+//             costprice
+//             sellprice
+//             saleprice
+//             productpicture
+//             alertstocks
+//             criticalstocks
+//         }
+//     }
+// }
+
+// VARIABLES
+// {
+//     "key" : "iphone",
+//     "page": 1
+// }

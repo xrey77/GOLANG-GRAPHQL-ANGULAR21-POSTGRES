@@ -28,3 +28,27 @@ func ProductListQuery() *graphql.Field {
 		Resolve: resolvers.GetProductsResolver,
 	}
 }
+
+// ========REQUEST================
+// query ProductList($page: Int!) {
+//     productList(page: $page) {
+//         products {
+//             id
+//             category
+//             descriptions
+//             qty
+//             unit
+//             costprice
+//             sellprice
+//             saleprice
+//             productpicture
+//             alertstocks
+//             criticalstocks
+//         }
+//     }
+// }
+
+// ======VARIABLES========
+// {
+// 	"page": 1
+// }

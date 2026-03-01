@@ -49,7 +49,7 @@ var MfaActivationField = &graphql.Field{
 			}
 
 			key, err := totp.Generate(totp.GenerateOpts{
-				Issuer:      "SUPERCAR INC.",
+				Issuer:      "APPLE INC.",
 				AccountName: userData.Email,
 			})
 

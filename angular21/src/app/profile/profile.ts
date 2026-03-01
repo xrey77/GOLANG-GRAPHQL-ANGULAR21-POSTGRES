@@ -115,6 +115,7 @@ export class Profile implements OnInit  {
         this.profileMsg.set('Uploading picture, please wait...');
         $("#pix").attr('src',URL.createObjectURL(file));    
 
+
         (await this.profileService.UploadPicture(this.userId, file, this.jwttoken)).subscribe({
           next: (res: any) => {
             alert("ok")
@@ -144,10 +145,10 @@ export class Profile implements OnInit  {
           error: (err: any) => {  
               console.log(err);
               // alert("error 2");
-              this.profileMsg.set(err.errors[0].message);
-              setTimeout(() => {
-                this.profileMsg.set('');
-              }, 3000);
+              // this.profileMsg.set(err.errors[0].message);
+              // setTimeout(() => {
+              //   this.profileMsg.set('');
+              // }, 3000);
 
           }      
         });

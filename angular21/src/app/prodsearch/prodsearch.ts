@@ -50,12 +50,12 @@ export class Prodsearch {
             }, 3000);
           } 
 
-          this.page = res.data.productsSearch.paginatorInfo.currentPage;
-          this.totpage = res.data.productsSearch.paginatorInfo.lastPage;
-          this.totalrec = res.data.productsSearch.paginatorInfo.total;
-          this.products = res.data.productsSearch.data;
+          this.page = res.data.productSearch.page;
+          this.totpage = res.data.productSearch.totalpage;
+          this.totalrec = res.data.productSearch.totalrecords;
+          this.products = res.data.productSearch.products;
 
-          if (res.data.productsSearch.data.length === 0) {
+          if (res.data.productSearch.data.length === 0) {
             this.message = "Product(s) not found.";
             window.setTimeout(() => { this.message = ''; this.products=[];}, 3000);
             return;
@@ -79,7 +79,6 @@ export class Prodsearch {
 
       this.productsService.sendSearchRequest(this.page, this.keyword).subscribe({      
       next: (res: any) => {
-
           if (res.data.errors) {
             this.message = res.errors[0].message;
             setTimeout(() => {
@@ -88,14 +87,14 @@ export class Prodsearch {
             }, 3000);
           } 
 
-          this.page = res.data.productsSearch.paginatorInfo.currentPage;
-          this.totpage = res.data.productsSearch.paginatorInfo.lastPage
-          this.totalrec = res.data.productsSearch.paginatorInfo.total;
-          this.products = res.data.productsSearch.data;
+          this.page = res.data.productSearch.page;
+          this.totpage = res.data.productSearch.totalpage;
+          this.totalrec = res.data.productSearch.totalrecords;
+          this.products = res.data.productSearch.products;
       },
       error: (err: any) => {
-        const errorMsg = err.response?.data?.errors?.[0]?.message || err.message;
-        this.message = errorMsg;
+          const errorMsg = err.response?.data?.errors?.[0]?.message || err.message;
+          this.message = errorMsg;
           window.setTimeout(() => {
             this.message = '';
           }, 3000);

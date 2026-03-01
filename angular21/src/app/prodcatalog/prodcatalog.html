@@ -7,7 +7,7 @@
     @for (product of products; track product.id) {
         <div class="col-md-4">
         <div class="card mx-1 mt-2">
-          <img src="{{`http://127.0.0.1:8000/products/${product.productpicture}`}}" class="card-img-top" alt="Product Image">
+          <img src="{{`http://localhost:5000/assets/products/${product.productpicture}`}}" class="card-img-top" alt="Product Image">
           <div class="card-body card-body-height">
             <h5 class="card-title">Descriptions</h5>
             <p class="card-text">{{product.descriptions}}</p>

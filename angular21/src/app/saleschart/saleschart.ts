@@ -7,8 +7,8 @@ import { CommonModule } from '@angular/common';
 Chart.register(...registerables);
 
 interface SalesData {
-  date: string;
-  amount: number;
+  salesdate: string;
+  saleamount: number;
 }
 
 @Component({
@@ -61,21 +61,15 @@ export class Saleschart implements OnInit {
     this.productsService.showSalesGraph().subscribe({
       next: (res: any) => {
 
-        if (res.data?.errors) {
-          this.message = res.data.errors[0].message;
-          setTimeout(() => { this.message = ''; }, 3000);
-          return;
-        }
-
-        const result = res.data?.salesChart;
+        const result = res.data.getSales;
         if (result) {
           this.barChartData = {
             labels: result.map((item: SalesData) => 
-              new Date(item.date).toLocaleString('en-US', { month: 'short' })
+              new Date(item.salesdate).toLocaleString('en-US', { month: 'short' })
             ),
             datasets: [{
               label: 'Sales',
-              data: result.map((item: SalesData) => item.amount),
+              data: result.map((item: SalesData) => item.saleamount),
               backgroundColor: 'rgba(60, 179, 113)',
             }],
           };

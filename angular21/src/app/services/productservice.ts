@@ -15,9 +15,12 @@ export class Productservice {
   public sendSearchRequest(page: number, keyword: any): Observable<any>
   {
     const SEARCH_QUERY = gql`
-      mutation ProductsSearch($keyword: String, $first: Int, $page: Int) {
-          productsSearch(keyword: $keyword, first: $first, page: $page) {
-            data {
+      query ProductSearch($key: String!, $page: Int!) {
+          productSearch(key: $key, page: $page) {
+            page
+            totalpage
+            totalrecords
+            products {
                 id
                 category
                 descriptions
@@ -26,23 +29,16 @@ export class Productservice {
                 sellprice
                 productpicture
             }
-            paginatorInfo {
-                currentPage
-                lastPage
-                total
-                hasMorePages
-            }
           }
       }
     `
-      return this.http.post(this.apiUrl, {
-      query: SEARCH_QUERY,
-      variables: { 
-          "page": page,
-          "keyword": keyword
-       }
+      return this.apollo.query({
+        query: SEARCH_QUERY,
+        variables: { 
+          key: keyword,
+          page: page,
+        }
     });
-
   }
 
   public productDataRequest(): Observable<any> {
@@ -62,86 +58,75 @@ export class Productservice {
       `,
     }).valueChanges;
   }
- 
+
   public sendProductRequest(page: number): Observable<any>
   {
-    const LIST_QUERY = `
-      query ProductsList($page: Int!) {
-          productsList(first: 5, page: $page) {
-            data {
+    const LIST_QUERY = gql`
+      query ProductList($page: Int!) {
+          productList(page: $page) {
+            page
+            totalpage
+            totalrecords
+            products {
                 id
                 category
                 descriptions
                 qty
                 unit
+                costprice
                 sellprice
+                saleprice
                 productpicture
-            }
-            paginatorInfo {
-                currentPage
-                lastPage
-                total
-                hasMorePages
+                alertstocks
+                criticalstocks
             }
           }
       }
     `
-      return this.http.post(this.apiUrl, {
-      query: LIST_QUERY,
-      variables: { 
-          "page": page
-       }
+      return this.apollo.query({
+        query: LIST_QUERY,
+        variables: { 
+          page: page,
+        }
     });
   } 
   
-public showPdfReport(): Observable<Blob> {
-    const REPORT_QUERY = {
-      query: `
-        query ProductReport {
-          productReport {
-            filename        
-            base64
+public showPdfReport(): Observable<any> {
+    const REPORT_QUERY = gql`
+      query PdfQuery {
+          pdfQuery {
+            id
+            category
+            descriptions
+            qty
+            unit
+            costprice
+            sellprice
+            saleprice
+            productpicture
+            alertstocks
+            criticalstocks
           }
         }
-      `
-    };
+      `;
 
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-
-    return this.http.post<any>(this.apiUrl, REPORT_QUERY, { headers }).pipe(
-      map(res => {
-        if (res.errors) {
-          throw new Error(res.errors[0].message);
-        }
-        if (!res?.data?.productReport) {
-          throw new Error('GraphQL response missing productReport data');
-        }
-        return res.data.productReport;
-      }),
-      map(data => {
-        const byteCharacters = atob(data.base64);
-        const byteNumbers = new Uint8Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-          byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        return new Blob([byteNumbers], { type: 'application/pdf' });
-      })
-    );            
+    return this.apollo.query({
+        query: REPORT_QUERY,
+    });
 }
 
   public showSalesGraph(): Observable<any> {
-    return this.apollo.watchQuery<any>({
-      query: gql`
-        query SalesChart {
-          salesChart {
-            amount
-            date
+      const SALES_QUERY = gql`
+        query GetSales {
+          getSales {
+            saleamount
+            salesdate
           }
         }
-      `,
-    }).valueChanges;
+      `;
+
+      return this.apollo.query({
+        query: SALES_QUERY,
+    });
   }
-  
-
-
 }

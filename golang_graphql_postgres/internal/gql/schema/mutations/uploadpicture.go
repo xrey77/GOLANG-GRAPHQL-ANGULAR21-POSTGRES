@@ -6,6 +6,7 @@ import (
 	"golang_graphql_postgres/internal/gql/schema/types"
 	middlware "golang_graphql_postgres/internal/middleware"
 	"golang_graphql_postgres/internal/models"
+	"log"
 	"mime/multipart"
 	"path/filepath"
 
@@ -25,19 +26,13 @@ var UploadPictureField = &graphql.Field{
 	Type:        uploadResponseType,
 	Description: "Upload profile picture",
 	Args: graphql.FieldConfigArgument{
-		"id":   &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
-		"file": &graphql.ArgumentConfig{Type: types.UploadScalar},
+		"id":          &graphql.ArgumentConfig{Type: graphql.NewNonNull(graphql.Int)},
+		"userpicture": &graphql.ArgumentConfig{Type: types.UploadScalar},
 	},
 	Resolve: func(params graphql.ResolveParams) (interface{}, error) {
 
-		// user, ok := params.Context.Value("user").(*types.UserClaims)
-
-		// if !ok || user == nil {
-		// 	return nil, errors.New("Unauthorized Access, valid bearer token required.")
-		// }
-
 		userid := params.Args["id"].(int)
-		file, ok := params.Args["file"].(*multipart.FileHeader)
+		file, ok := params.Args["userpicture"].(*multipart.FileHeader)
 		if !ok {
 			return nil, fmt.Errorf("invalid image file")
 		}
@@ -46,15 +41,17 @@ var UploadPictureField = &graphql.Field{
 			return nil, fmt.Errorf("could not find gin context")
 		}
 
-		user, err := middlware.GetUserID(userid)
+		userData, err := middlware.GetUserID(userid)
 		if err != nil {
 			return nil, fmt.Errorf("User ID not found.")
 		}
 
 		filename := filepath.Base(file.Filename)
 		ext := filepath.Ext(filename)
-		newfile := "00" + string(userid) + ext
+		// newfile := "00" + string(rune(userid)) + ext
+		newfile := fmt.Sprintf("00%d%s", userid, ext)
 
+		log.Println("NEW FILE................", newfile)
 		result := configs.DB.Model(&models.User{}).
 			Where("id = ?", userid).
 			Updates(map[string]interface{}{
@@ -65,14 +62,14 @@ var UploadPictureField = &graphql.Field{
 			return nil, fmt.Errorf("%s", "Update failed: "+result.Error.Error())
 		}
 
-		dst := filepath.Join("./assets/users", newfile)
+		dst := filepath.Join("./templates/assets/users", newfile)
 		if err := gc.SaveUploadedFile(file, dst); err != nil {
 			return nil, err
 		}
 
 		return map[string]interface{}{
 			"message": "You have changed your profile picture successfully.",
-			"user":    user,
+			"user":    userData,
 		}, nil
 	},
 }

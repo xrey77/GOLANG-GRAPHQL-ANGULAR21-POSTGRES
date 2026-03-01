@@ -8,14 +8,24 @@
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
+    "noFallthroughCasesInSwitch": true,    
+    "paths": {
+      "stream": ["node_modules/stream-browserify"],
+      "zlib": ["node_modules/browserify-zlib"],
+      "util": ["node_modules/util"],
+      "fs": ["node_modules/path-browserify"], // Often used to 'stub' fs for web
+      "assert": ["node_modules/assert"],
+      "buffer": ["node_modules/buffer"],
+      "process": ["node_modules/process"]
+    },
     "skipLibCheck": true,
     "isolatedModules": true,
     "experimentalDecorators": true,
     "importHelpers": false,
     "target": "ES2022",
     "module": "ESNext",
-    "moduleResolution": "bundler",        
+    "moduleResolution": "bundler",       
+
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

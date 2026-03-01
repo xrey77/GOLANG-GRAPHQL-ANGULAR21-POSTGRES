@@ -9,7 +9,7 @@ var UploadScalar = graphql.NewScalar(graphql.ScalarConfig{
 	Name:        "Upload",
 	Description: "The `Upload` scalar type represents a file upload.",
 	Serialize: func(value interface{}) interface{} {
-		return value
+		return nil
 	},
 	ParseValue: func(value interface{}) interface{} {
 		return value

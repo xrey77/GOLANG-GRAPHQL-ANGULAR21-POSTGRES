@@ -7,13 +7,13 @@ import (
 	"github.com/graphql-go/graphql"
 )
 
-func GetSalesQuery() *graphql.Field {
+func PdfaQuery() *graphql.Field {
 
-	SaleType := types.SaleType
+	ProductType := types.ProductType
 	return &graphql.Field{
-		Type:        graphql.NewList(SaleType),
-		Description: "Get sales data",
-		Resolve:     resolvers.GetSalesResolver,
+		Type:        graphql.NewList(ProductType),
+		Description: "Get PDF data",
+		Resolve:     resolvers.GetPdfResolver,
 	}
 }
 

@@ -12,5 +12,6 @@ var RootQuery = graphql.NewObject(graphql.ObjectConfig{
 		"productList":   ProductListQuery(),
 		"productSearch": ProductSearchQuery(),
 		"getSales":      GetSalesQuery(),
+		"pdfQuery":      PdfaQuery(),
 	},
 })

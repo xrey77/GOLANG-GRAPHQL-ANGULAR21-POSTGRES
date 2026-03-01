@@ -10,6 +10,7 @@ import { Apollo, gql } from 'apollo-angular';
 export class Profileservice {
   private readonly apollo = inject(Apollo);
     
+  
   public getUserbyId(idno: number, token: any): Observable<any> {
     const GETUSER_ID = gql`
         query GetUserID($id: Int!) {        
@@ -62,32 +63,61 @@ export class Profileservice {
 
   }
 
-  public async UploadPicture(idno: number, file: File, token: any): Promise<Observable<any>> {
+ public UploadPicture(idno: number, file: File, token: string): Observable<any> {
     const UPLOAD_PICTURE = gql`
-        mutation UploadPicture($id : Int!, $file: Upload!) {        
-          uploadPicture(id: $id, file: $file) {
-              message
-              user {
-                  id
-              }
+      mutation UploadPicture($id: Int!, $userpicture: Upload!) {
+        uploadPicture(id: $id, userpicture: $userpicture) {
+          message
+          user {
+            id
           }
         }
-      `
-      console.log(file);
-      return this.apollo.mutate({
-        mutation: UPLOAD_PICTURE,
-        variables: { 
-          id: idno,
-          userpicture: file
-        },
-        context: {
-          useMultipart: true,          
-          headers: new HttpHeaders().set(
-            'Authorization', `Bearer ${token},
-            'Apollo-Require-Preflight': 'true`)
-        }        
+      }
+    `;  
+
+    return this.apollo.mutate({
+      mutation: UPLOAD_PICTURE,
+      variables: {
+        id: idno,
+        userpicture: file // Pass the File object directly
+      },
+      context: {
+        useMultipart: true, // Required for file uploads
+          headers: new HttpHeaders()
+          .set('Authorization', `Bearer ${token}`) // Added closing backtick and parenthesis
+          .set('Apollo-Require-Preflight', 'true')
+      }
     });
   }
+
+  // public async UploadPicture(idno: number, file: File, token: any): Promise<Observable<any>> {
+
+
+    // const UPLOAD_PICTURE = gql`
+    //     mutation UploadPicture($id : Int!, $userpicture: Upload!) {        
+    //       uploadPicture(id: $id, userpicture: $userpicture) {
+    //           message
+    //           user {
+    //               id
+    //           }
+    //       }
+    //     }
+    //   `
+
+    //   return this.apollo.mutate({
+    //     mutation: formData,
+    //     variables: { 
+    //       id: idno,
+    //       userpicture: file
+    //     },
+    //     context: {
+    //       useMultipart: true,          
+        //   headers: new HttpHeaders()
+        //   .set('Authorization', `Bearer ${token}`) // Added closing backtick and parenthesis
+        //   .set('Apollo-Require-Preflight', 'true')
+        // }        
+    // });
+  // }
 
   public sendProfileRequest(idno: number, userdtls: any, token: any): Observable<any> {
     const PROFILE_UPDATE = gql`

@@ -28,7 +28,11 @@
             "browser": "src/main.ts",
             "polyfills": [
               "zone.js",
-              "@angular/localize/init"
+              "@angular/localize/init",
+              "stream-browserify",
+              "browserify-zlib",
+              "events",
+              "buffer"              
             ],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
